@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>Spidey Money Lab - Il Negozio di Simone</title>
+  
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <meta name="theme-color" content="#d91b33">
+
+  <!-- Font ad alta leggibilità: Lexend (accessibilità e dislessia) + Outfit (fumetto dinamico) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700;800&family=Outfit:wght@600;700;800;900&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div class="app-wrapper">
+    <!-- Header della missione -->
+    <header class="main-header" role="banner">
+      <div class="brand">
+        <div class="spidey-badge-icon" aria-hidden="true">
+          <svg viewBox="0 0 100 100" class="mini-spidey-svg">
+            <ellipse cx="50" cy="50" rx="42" ry="46" fill="#e2263d"/>
+            <path d="M 50 8 Q 50 50 50 92 M 8 50 Q 50 50 92 50 M 20 20 Q 50 50 80 80 M 20 80 Q 50 50 80 20" stroke="#1a1c24" stroke-width="2.5" fill="none"/>
+            <path d="M 28 36 Q 36 28 44 42 Q 36 50 28 36 Z" fill="#ffffff" stroke="#1a1c24" stroke-width="3"/>
+            <path d="M 72 36 Q 64 28 56 42 Q 64 50 72 36 Z" fill="#ffffff" stroke="#1a1c24" stroke-width="3"/>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <span class="sub-title">SUPEREROI DELLA SPESA</span>
+          <h1 class="app-title">SPIDEY & SIMONE</h1>
+        </div>
+      </div>
+
+      <!-- Barra di controllo modalità (Inizia da Paga Esatto per progressione didattica) -->
+      <nav class="modes-nav" aria-label="Modalità di gioco">
+        <button id="btn-mode-exact" class="mode-tab active" onclick="setMode('exact')">
+          <span class="icon">🎯</span> Paga Esatto
+        </button>
+        <button id="btn-mode-change" class="mode-tab" onclick="setMode('change')">
+          <span class="icon">🛍️</span> Calcola il Resto
+        </button>
+        <button id="btn-mode-explore" class="mode-tab" onclick="setMode('explore')">
+          <span class="icon">🔍</span> Impara le Monete
+        </button>
+        <button id="btn-mode-verify" class="mode-tab" onclick="setMode('verify')">
+          <span class="icon">🕵️</span> Controlla il Negoziante
+        </button>
+      </nav>
+
+      <!-- Punteggio, Audio e Impostazioni Adulto -->
+      <div class="header-tools">
+        <button id="btn-voice-toggle" class="tool-btn" onclick="toggleVoice()" aria-label="Attiva o disattiva voce parlante di Spidey">
+          <span id="voice-icon">🎙️</span> <span id="voice-label">Voce</span>
+        </button>
+        <button id="btn-sound-toggle" class="tool-btn" onclick="toggleSound()" aria-label="Attiva o disattiva effetti sonori">
+          <span id="sound-icon">🔔</span> <span id="sound-label">Suoni</span>
+        </button>
+        <button id="btn-settings-open" class="tool-btn settings-btn" onclick="openSettingsModal()" aria-label="Apri impostazioni per l'adulto">
+          <span>⚙️</span> <span class="hide-mobile">Adulto</span>
+        </button>
+        <div class="score-pill" title="Adesivi e Ragnatele d'Oro guadagnate!">
+          <span class="score-icon">🕸️</span>
+          <span id="score-counter" class="score-value">0</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Area principale Tablet (Bento Grid) -->
+    <main class="game-grid" role="main">
+
+      <!-- COLONNA SINISTRA: L'Avatar di Spidey & La Scena del Negozio -->
+      <section class="bento-card card-spidey" aria-label="Missione e Negoziante">
+        
+        <!-- Box Avatar con Spidey calmo ed empatico -->
+        <div class="spidey-hero-box">
+          <div class="spidey-avatar-container" id="spidey-avatar" onclick="repeatSpeech()" title="Tocca Spidey per riascoltare l'istruzione" role="button" tabindex="0">
+            <!-- Maschera SVG ufficiale di Spider-Man -->
+            <svg viewBox="0 0 200 220" class="spidey-face-svg" aria-label="Avatar di Spider-Man">
+              <defs>
+                <radialGradient id="spideyGrad" cx="40%" cy="35%" r="65%">
+                  <stop offset="0%" stop-color="#ff3b53"/>
+                  <stop offset="60%" stop-color="#d91b33"/>
+                  <stop offset="100%" stop-color="#990b1e"/>
+                </radialGradient>
+                <filter id="shadowFilter" x="-10%" y="-10%" width="120%" height="120%">
+                  <feDropShadow dx="0" dy="6" stdDeviation="6" flood-color="rgba(0,0,0,0.4)"/>
+                </filter>
+              </defs>
+              
+              <ellipse cx="100" cy="110" rx="78" ry="94" fill="url(#spideyGrad)" filter="url(#shadowFilter)"/>
+              
+              <g stroke="#1a1c29" stroke-width="2.2" fill="none" opacity="0.8">
+                <path d="M 100 20 L 100 200"/>
+                <path d="M 25 110 L 175 110"/>
+                <path d="M 40 45 L 160 175"/>
+                <path d="M 40 175 L 160 45"/>
+                <path d="M 80 85 Q 100 70 120 85 Q 135 105 120 125 Q 100 140 80 125 Q 65 105 80 85 Z"/>
+                <path d="M 60 70 Q 100 50 140 70 Q 160 105 140 145 Q 100 165 60 145 Q 40 105 60 70 Z"/>
+                <path d="M 40 50 Q 100 25 160 50 Q 185 105 160 165 Q 100 190 40 165 Q 15 105 40 50 Z"/>
+              </g>
+
+              <g class="spidey-eye eye-left" id="eye-left">
+                <path d="M 42 85 Q 65 65 92 98 Q 72 124 42 85 Z" fill="#ffffff" stroke="#12131a" stroke-width="6.5" stroke-linejoin="round"/>
+              </g>
+
+              <g class="spidey-eye eye-right" id="eye-right">
+                <path d="M 158 85 Q 135 65 108 98 Q 128 124 158 85 Z" fill="#ffffff" stroke="#12131a" stroke-width="6.5" stroke-linejoin="round"/>
+              </g>
+            </svg>
+            <div class="spidey-click-hint">Tocca Spidey per riascoltare 🔊</div>
+          </div>
+
+          <!-- Fumetto / Ballon di Spidey con testo ad alta leggibilità -->
+          <div class="speech-bubble" id="spidey-bubble" aria-live="polite">
+            <p id="spidey-message" class="speech-text">
+              Ciao Simone! Aiutami al supermercato: guarda quanto costa l'oggetto e quanto abbiamo dato al negoziante!
+            </p>
+          </div>
+        </div>
+
+        <!-- LE TRE AREE CHIAVE: 1. COSTA  2. HAI DATO  3. TORNA A TE -->
+        <div class="transaction-breakdown">
+          
+          <!-- AREA 1: COSTA -->
+          <div class="trade-box box-cost" id="box-cost-area">
+            <div class="box-tag tag-cost">1. COSTA</div>
+            <div class="item-visual-wrap">
+              <div id="item-emoji" class="item-emoji">🍕</div>
+              <div class="item-info">
+                <h2 id="item-name" class="item-name">Super Pizza</h2>
+                <div class="item-price-tag">
+                  <span class="price-label">Prezzo:</span>
+                  <span id="item-price" class="price-amount">8,00 €</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- AREA 2: HAI DATO AL NEGOZIANTE -->
+          <div class="trade-box box-given" id="box-given-area">
+            <div class="box-tag tag-given">2. HAI DATO AL NEGOZIANTE</div>
+            <div class="given-content-wrap">
+              <div id="given-visual" class="given-visual-display">
+                <!-- Mostra immagine banconota o moneta data (es. 20€ BCE) -->
+              </div>
+              <div class="given-text-summary">
+                <span class="given-sub">Hai consegnato:</span>
+                <span id="given-amount-label" class="given-total-highlight">20,00 €</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- GUIDA VISIVA DEI SALTI (Dal Prezzo al Pagamento: 15 -> 17 -> 19 -> 20) -->
+        <div id="jump-guide-container" class="jump-guide-wrap">
+          <div class="jump-guide-header">
+            <span class="guide-title">📏 GUIDA DEI SALTI DAL PREZZO AL PAGAMENTO</span>
+            <button class="guide-toggle-btn" onclick="toggleJumpGuide()" id="btn-toggle-guide" aria-label="Mostra o nascondi la guida dei salti">
+              Nascondi guida
+            </button>
+          </div>
+          <div id="jump-path-display" class="jump-path-display">
+            <!-- Riempito dinamicamente: tappe numeriche proporzionali -->
+          </div>
+        </div>
+
+        <!-- Tasto Aiuto Progressivo -->
+        <div class="help-action-row">
+          <button id="btn-hint" class="hint-btn" onclick="requestProgressiveHint()">
+            💡 Spidey, mi aiuti a capire il resto?
+          </button>
+        </div>
+
+      </section>
+
+      <!-- COLONNA DESTRA: AREA 3 (TORNA A TE) & CASSA DEL NEGOZIANTE -->
+      <section class="bento-card card-cashier" aria-label="Piattino del resto e cassa">
+        
+        <!-- AREA 3: TORNA A TE (IL PIATTINO DI SIMONE) -->
+        <div class="checkout-tray" id="tray-zone">
+          <div class="tray-header">
+            <div class="tray-title-wrap">
+              <span class="box-tag tag-tray">3. TORNA A TE (RESTO)</span>
+              <h2 id="tray-instruction" class="tray-main-instruction">Prepara i soldi che tornano a te</h2>
+            </div>
+            
+            <div class="tray-total-display" aria-live="polite">
+              <span class="total-label">Sul tuo piattino:</span>
+              <span id="tray-total-val" class="total-number">0,00 €</span>
+            </div>
+
+            <!-- Pulsanti di correzione immediata -->
+            <div class="tray-quick-actions">
+              <button class="action-btn undo-btn" onclick="undoLastTouch()" id="btn-undo" title="Annulla l'ultimo pezzo inserito" aria-label="Annulla l'ultimo pezzo">
+                ↩️ Annulla tocco
+              </button>
+              <button class="action-btn clear-btn" onclick="clearTray()" id="btn-clear" title="Svuota il piattino per ricominciare" aria-label="Svuota piattino">
+                🔄 Svuota
+              </button>
+            </div>
+          </div>
+
+          <!-- Superficie del piattino di Simone -->
+          <div id="tray-dropzone" class="tray-surface" role="region" aria-label="Piattino dove comporre il resto">
+            <div id="tray-placeholder" class="tray-empty-hint">
+              <span>👉 Tocca le banconote o monete della cassa qui sotto per metterle sul tuo piattino!</span>
+            </div>
+            <div id="tray-items-container" class="tray-items-flex"></div>
+          </div>
+        </div>
+
+        <!-- LA CASSA DEL NEGOZIANTE (DENARO REALE CON ASSET UFFICIALI BCE) -->
+        <div class="cashier-drawer-section">
+          <div class="drawer-header">
+            <span class="drawer-title" id="drawer-title-label">🏪 CASSA DEL NEGOZIANTE (PRENDI IL RESTO DA QUI)</span>
+            
+            <!-- Tasto per girare fronte/retro (attivo soprattutto in modalità Impara) -->
+            <button id="btn-flip-money" class="flip-money-btn" onclick="toggleMoneyFlip()">
+              🔄 Gira denaro (Fronte / Retro)
+            </button>
+          </div>
+
+          <!-- Gruppo Banconote Ufficiali BCE (Fronte/Retro con dicitura SPECIMEN) -->
+          <div class="currency-group banknotes-group" id="banknotes-container">
+            <!-- 50 Euro -->
+            <button class="money-btn bill-btn bill-50-btn" id="btn-bill-5000" onclick="addMoney(5000, 'bill')" aria-label="Aggiungi 50 Euro">
+              <div class="money-img-wrapper bill-wrapper">
+                <img src="assets/money/bill_50_front.png" alt="Banconota 50 Euro BCE" class="bill-img" id="img-bill-5000" data-front="assets/money/bill_50_front.png" data-back="assets/money/bill_50_back.png">
+              </div>
+              <span class="money-label">50 €</span>
+            </button>
+
+            <!-- 20 Euro -->
+            <button class="money-btn bill-btn bill-20-btn" id="btn-bill-2000" onclick="addMoney(2000, 'bill')" aria-label="Aggiungi 20 Euro">
+              <div class="money-img-wrapper bill-wrapper">
+                <img src="assets/money/bill_20_front.jpg" alt="Banconota 20 Euro BCE" class="bill-img" id="img-bill-2000" data-front="assets/money/bill_20_front.jpg" data-back="assets/money/bill_20_back.jpg">
+              </div>
+              <span class="money-label">20 €</span>
+            </button>
+
+            <!-- 10 Euro -->
+            <button class="money-btn bill-btn bill-10-btn" id="btn-bill-1000" onclick="addMoney(1000, 'bill')" aria-label="Aggiungi 10 Euro">
+              <div class="money-img-wrapper bill-wrapper">
+                <img src="assets/money/bill_10_front.png" alt="Banconota 10 Euro BCE" class="bill-img" id="img-bill-1000" data-front="assets/money/bill_10_front.png" data-back="assets/money/bill_10_back.png">
+              </div>
+              <span class="money-label">10 €</span>
+            </button>
+
+            <!-- 5 Euro -->
+            <button class="money-btn bill-btn bill-500-btn" id="btn-bill-500" onclick="addMoney(500, 'bill')" aria-label="Aggiungi 5 Euro">
+              <div class="money-img-wrapper bill-wrapper">
+                <img src="assets/money/bill_5_front.png" alt="Banconota 5 Euro BCE" class="bill-img" id="img-bill-500" data-front="assets/money/bill_5_front.png" data-back="assets/money/bill_5_back.png">
+              </div>
+              <span class="money-label">5 €</span>
+            </button>
+          </div>
+
+          <!-- Gruppo Monete Ufficiali (Proporzioni millimetriche corrette: 50c > 1€!) -->
+          <div class="currency-group coins-group" id="coins-container">
+            <!-- 2 Euro (25.75 mm) -->
+            <button class="money-btn coin-btn coin-2-btn" id="btn-coin-200" onclick="addMoney(200, 'coin')" aria-label="Aggiungi moneta da 2 Euro">
+              <div class="money-img-wrapper coin-wrapper size-2e">
+                <img src="assets/money/coin_2_euro.png" alt="Moneta da 2 Euro" class="coin-img">
+              </div>
+              <span class="money-label">2 €</span>
+            </button>
+
+            <!-- 1 Euro (23.25 mm) -->
+            <button class="money-btn coin-btn coin-1-btn" id="btn-coin-100" onclick="addMoney(100, 'coin')" aria-label="Aggiungi moneta da 1 Euro">
+              <div class="money-img-wrapper coin-wrapper size-1e">
+                <img src="assets/money/coin_1_euro.png" alt="Moneta da 1 Euro" class="coin-img">
+              </div>
+              <span class="money-label">1 €</span>
+            </button>
+
+            <!-- 50 Centesimi (24.25 mm - più grande di 1€!) -->
+            <button class="money-btn coin-btn coin-50c-btn" id="btn-coin-50" onclick="addMoney(50, 'coin')" aria-label="Aggiungi moneta da 50 centesimi">
+              <div class="money-img-wrapper coin-wrapper size-50c">
+                <img src="assets/money/coin_50_cent.png" alt="Moneta da 50 Centesimi" class="coin-img">
+              </div>
+              <span class="money-label">50 cent</span>
+            </button>
+
+            <!-- 20 Centesimi (22.25 mm - contorno fiore spagnolo) -->
+            <button class="money-btn coin-btn coin-20c-btn" id="btn-coin-20" onclick="addMoney(20, 'coin')" aria-label="Aggiungi moneta da 20 centesimi">
+              <div class="money-img-wrapper coin-wrapper size-20c spanish-flower">
+                <img src="assets/money/coin_20_cent.png" alt="Moneta da 20 Centesimi con fiore spagnolo" class="coin-img">
+              </div>
+              <span class="money-label">20 cent</span>
+            </button>
+
+            <!-- 10 Centesimi (19.75 mm) -->
+            <button class="money-btn coin-btn coin-10c-btn" id="btn-coin-10" onclick="addMoney(10, 'coin')" aria-label="Aggiungi moneta da 10 centesimi">
+              <div class="money-img-wrapper coin-wrapper size-10c">
+                <img src="assets/money/coin_10_cent.png" alt="Moneta da 10 Centesimi" class="coin-img">
+              </div>
+              <span class="money-label">10 cent</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Grande Pulsante di Verifica / Azione (Altezza >= 64px) -->
+        <div class="action-footer">
+          <button id="btn-submit" class="cta-check-btn" onclick="checkAnswer()" aria-label="Verifica i soldi preparati">
+            <span class="btn-spider-icon">🕸️</span>
+            <span id="btn-submit-text">SPIDEY, CONTROLLA IL RESTO!</span>
+          </button>
+        </div>
+
+      </section>
+
+    </main>
+
+    <!-- Overlay Celebrativo Vittoria (Didattico e Non Punitivo) -->
+    <div id="modal-celebrate" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+      <div class="modal-card">
+        <div class="celebrate-spidey">
+          <span class="huge-trophy">🏆</span>
+        </div>
+        <h2 class="modal-title" id="modal-title">COLPO PERFETTO, SIMONE!</h2>
+        <p id="modal-feedback" class="modal-desc">
+          Il resto è esatto! Hai controllato il piattino come un vero supereroe!
+        </p>
+        <div class="modal-reward">
+          <span id="modal-reward-action">Hai conquistato un nuovo adesivo: </span>
+          <strong class="reward-highlight">+1 Ragnatela d'Oro! 🕸️</strong>
+        </div>
+        
+        <div class="modal-buttons-row">
+          <button class="modal-btn secondary-btn" onclick="repeatWithRealMoney()" id="btn-real-money">
+            🪙 Prova con soldi veri sul tavolo
+          </button>
+          <button class="modal-btn primary-btn" onclick="nextMission()">
+            PROSSIMA MISSIONE! 🚀
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL PANNELLO ADULTO / IMPOSTAZIONI (⚙️) -->
+    <div id="modal-settings" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="settings-title">
+      <div class="modal-card settings-card">
+        <div class="settings-header">
+          <h2 class="settings-title" id="settings-title">⚙️ Impostazioni per l'Adulto</h2>
+          <button class="close-x-btn" onclick="closeSettingsModal()" aria-label="Chiudi impostazioni">✕</button>
+        </div>
+        
+        <div class="settings-body">
+          <!-- Tagli abilitati -->
+          <div class="setting-group">
+            <label class="setting-label">Tagli di denaro disponibili:</label>
+            <div class="checkbox-chips-grid">
+              <label class="chip-item"><input type="checkbox" id="cfg-5000" checked onchange="updateTagliConfig()"> 50 €</label>
+              <label class="chip-item"><input type="checkbox" id="cfg-2000" checked onchange="updateTagliConfig()"> 20 €</label>
+              <label class="chip-item"><input type="checkbox" id="cfg-1000" checked onchange="updateTagliConfig()"> 10 €</label>
+              <label class="chip-item"><input type="checkbox" id="cfg-500" checked onchange="updateTagliConfig()"> 5 €</label>
+              <label class="chip-item"><input type="checkbox" id="cfg-200" checked onchange="updateTagliConfig()"> 2 €</label>
+              <label class="chip-item"><input type="checkbox" id="cfg-100" checked onchange="updateTagliConfig()"> 1 €</label>
+              <label class="chip-item"><input type="checkbox" id="cfg-50" checked onchange="updateTagliConfig()"> 50 ct</label>
+              <label class="chip-item"><input type="checkbox" id="cfg-20" checked onchange="updateTagliConfig()"> 20 ct</label>
+              <label class="chip-item"><input type="checkbox" id="cfg-10" checked onchange="updateTagliConfig()"> 10 ct</label>
+            </div>
+          </div>
+
+          <!-- Uso dei centesimi -->
+          <div class="setting-group row-group">
+            <label for="cfg-use-cents" class="setting-label">Abilita esercizi con i centesimi:</label>
+            <input type="checkbox" id="cfg-use-cents" onchange="updateGeneralConfig()">
+          </div>
+
+          <!-- Intervallo importi -->
+          <div class="setting-group">
+            <label for="cfg-max-range" class="setting-label">Intervallo massimo prezzi:</label>
+            <select id="cfg-max-range" class="setting-select" onchange="updateGeneralConfig()">
+              <option value="1000">Entro 10 Euro (Ideale per iniziare)</option>
+              <option value="2000" selected>Entro 20 Euro</option>
+              <option value="5000">Entro 50 Euro</option>
+            </select>
+          </div>
+
+          <!-- Guida visiva dei salti -->
+          <div class="setting-group row-group">
+            <label for="cfg-show-guide" class="setting-label">Mostra sempre la guida visiva dei salti:</label>
+            <input type="checkbox" id="cfg-show-guide" onchange="updateGeneralConfig()">
+          </div>
+
+          <!-- Riduzione animazioni -->
+          <div class="setting-group row-group">
+            <label for="cfg-reduced-motion" class="setting-label">Animazioni ridotte (basso stimolo visivo):</label>
+            <input type="checkbox" id="cfg-reduced-motion" onchange="updateGeneralConfig()">
+          </div>
+        </div>
+
+        <button class="modal-btn primary-btn" onclick="closeSettingsModal()">
+          SALVA E CHIUDI 💾
+        </button>
+      </div>
+    </div>
+
+    <!-- MODAL RIPETI CON SOLDI VERI SUL TAVOLO -->
+    <div id="modal-real-money" class="modal-backdrop hidden" role="dialog" aria-modal="true">
+      <div class="modal-card">
+        <h2 class="modal-title">🪙 Facciamo la spesa sul tavolo!</h2>
+        <p class="modal-desc" id="real-money-instructions">
+          Prepara davanti a Simone un oggetto da 15 € e dagli una banconota vera da 20 €. Fagli contare con le mani il resto da restituire!
+        </p>
+        <button class="modal-btn primary-btn" onclick="closeRealMoneyModal()">
+          HO CAPITO, TORNATI AL GIOCO! 🚀
+        </button>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="app.js"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./service-worker.js').catch(err => {
+          console.warn('Service worker registration failed:', err);
+        });
+      });
+    }
+  </script>
+</body>
+</html>
