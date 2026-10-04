@@ -1,4 +1,4 @@
-const CACHE = 'spidey-soldi-v1';
+const CACHE = 'spidey-soldi-v2';
 
 const ASSETS = [
   './',

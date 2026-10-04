@@ -31,7 +31,7 @@ if os.path.exists(audio_dir):
         if f.endswith(".mp3"):
             ASSETS.append(f"./assets/audio/{f}")
 
-CACHE_NAME = "spidey-soldi-v1"
+CACHE_NAME = "spidey-soldi-v2"
 
 content = f"""const CACHE = '{CACHE_NAME}';
 

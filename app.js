@@ -656,7 +656,9 @@ function loadCurrentMission() {
     // Aggiorna guida visiva dei salti
     renderJumpGuide(mission.price, mission.givenTotal, 0);
 
-    const changeIdx = AppState.missionIndex % MISSIONS_CHANGE.length;
+    // L'audio va preso dalla posizione della missione nella lista COMPLETA:
+    // con i filtri (prezzo massimo, centesimi) l'indice della lista filtrata non coincide.
+    const changeIdx = MISSIONS_CHANGE.indexOf(mission);
     speakClips([`assets/audio/intro_change_${changeIdx}.mp3`], mission.intro);
 
   } else if (AppState.mode === "exact") {
@@ -669,7 +671,7 @@ function loadCurrentMission() {
     document.getElementById("item-name").innerText = mission.name;
     document.getElementById("item-price").innerText = formatCents(mission.price);
 
-    const audioIdx = AppState.missionIndex % MISSIONS_EXACT.length;
+    const audioIdx = MISSIONS_EXACT.indexOf(mission);
     speakClips([`assets/audio/intro_exact_${audioIdx}.mp3`], mission.intro);
 
   } else if (AppState.mode === "explore") {
